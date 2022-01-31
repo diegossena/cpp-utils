@@ -1,4 +1,9 @@
-#include "index.hpp"
+#pragma once
+#include <string>
+using namespace std;
+#include "Error.hpp"
+#include "Socket.hpp"
+#include "String.hpp"
 #define DEFAULT_HTTP_PORT 80U
 class Http {
 public:
@@ -8,7 +13,7 @@ public:
   };
 private:
   Response request(string method, string host, string path = "/", u_short port = DEFAULT_HTTP_PORT, string body = "") {
-    auto socket = net::Socket().createConnection(host, port);
+    auto socket = Socket(host, port);
     string httpRequest = method
       + " "
       + path

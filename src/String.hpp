@@ -1,4 +1,7 @@
-#include "index.hpp"
+#pragma once
+#include <string>
+#include <vector>
+using namespace std;
 namespace String {
   string toLowerCase(string str) {
     for (int i = 0; i < str.length(); i++) {
@@ -9,7 +12,7 @@ namespace String {
     return str;
   }
   vector<string> split(string str, string separator) {
-    std::vector<string> result;
+    vector<string> result;
     char* ptr = strtok((char*)str.c_str(), separator.c_str());
     while (ptr != NULL) {
       result.push_back(ptr);

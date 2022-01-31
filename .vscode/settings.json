@@ -51,6 +51,9 @@
     "fstream": "cpp",
     "sstream": "cpp",
     "cerrno": "cpp",
-    "map": "cpp"
+    "map": "cpp",
+    "xstring": "cpp",
+    "xlocale": "cpp",
+    "xutility": "cpp"
   }
 }

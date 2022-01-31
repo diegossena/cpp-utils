@@ -1,4 +1,4 @@
 CLS
 @ECHO OFF
-g++ main.cpp -o bin/main -Isrc -lWs2_32
-bin\\main 192.168.0.1 100
+gcc main.cpp -o bin/main -Isrc -lstdc++ -lWs2_32 -D_GLIBCXX_USE_CXX11_ABI=0
+bin\\main

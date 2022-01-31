@@ -1,4 +1,6 @@
-#include "index.hpp"
+#pragma once
+#include <string>
+using namespace std;
 namespace Printer {
   // Query(string host)
   class Query {
