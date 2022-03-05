@@ -1,6 +1,6 @@
 CLS
 @ECHO OFF
-gcc src/main.cpp -o bin/main -Imodules -lstdc++
+gcc src/main.cpp -o bin/main -Imodules -Isrc -lstdc++
 IF %ERRORLEVEL% == 0 (
   bin\\main
   echo.

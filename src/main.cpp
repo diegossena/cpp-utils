@@ -1,9 +1,9 @@
-#include <iostream>
+#include "Window.hpp"
 #include "String.hpp"
-//#include "http.hpp"
 int main(int argc, char** argv) {
-  String test = "1fASDASFSAF31@$23";
-  String test2 = test;
-  cout << test2.slice(0, 200).length << '\n';
+  String window_name = "Principal";
+  auto mainWindow = Window(window_name).show();
+  //mainWindow.show();
+  while (mainWindow.isOpen());
   return 0;
 }

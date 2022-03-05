@@ -1,44 +1,48 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <tchar.h>
 using namespace std;
 class String
 {
   // Props
-  char* buffer = nullptr;
-  size_t length_ = 0;
+  char* buffer_ = nullptr;
+  uint64_t length_ = 0;
   // Operators
   bool operator==(
     const String& str
     ) {
-    if (length_ != str.length) {
+    if (length_ != str.length)
       return false;
-    }
-    else {
-      for (size_t i = 0; i < length_; i++)
-        if (buffer[i] != str.buffer[i])
+    else
+      for (uint64_t i = 0; i < length; i++)
+        if (buffer_[i] != str.buffer_[i])
           return false;
-    }
     return true;
   }
   void operator=(
     const String& str
     ) {
-    buffer = str.buffer;
+    buffer_ = str.buffer_;
     length_ = str.length;
   }
 public:
   // refs
-  const size_t& length = length_;
+  const uint64_t& length = length_;
+  // Conversion
+  operator const char* () {
+    return buffer_;
+  }
   // with no arguments
   String() {}
   // Copy Constructor
   String(const String& source)
   {
     length_ = source.length;
-    buffer = new char[source.length];
-    for (size_t i = 0; i < length; i++)
-      buffer[i] = source.buffer[i];
+    buffer_ = new char[source.length + 1];
+    for (uint64_t i = 0; i < length; i++)
+      buffer_[i] = source.buffer_[i];
+    buffer_[length] = '\0';
   }
   // with one arguments
   String(const char* str) {
@@ -47,12 +51,13 @@ public:
       const char* ptr = str;
       while (*ptr++)
         length_++;
-      buffer = new char[length_];
-      for (size_t i = 0; i < length_; i++)
-        buffer[i] = str[i];
+      buffer_ = new char[length + 1];
+      for (uint64_t i = 0; i < length_; i++)
+        buffer_[i] = str[i];
+        buffer_[length] = '\0';
     }
   }
-  ~String() { delete[] buffer; }
+  ~String() { delete[] buffer_; }
   // Prototype for stream insertion
   friend ostream&
     operator<<(
@@ -60,39 +65,37 @@ public:
       const String& str) {
     for (int i = 0; i < str.length; i++)
     {
-      os << str.buffer[i];
+      os << str.buffer_[i];
     }
     return os;
   }
   String toLowerCase()
   {
     String lower_case_str(*this);
-    for (size_t i = 0; i < lower_case_str.length; i++)
+    for (uint64_t i = 0; i < lower_case_str.length; i++)
     {
-      if (lower_case_str.buffer[i] >= 65 && lower_case_str.buffer[i] <= 90)
+      if (lower_case_str.buffer_[i] >= 65 && lower_case_str.buffer_[i] <= 90)
       {
-        lower_case_str.buffer[i] += 32;
+        lower_case_str.buffer_[i] += 32;
       }
     }
     return lower_case_str;
   }
-  size_t indexOf(String searchString, size_t position = 0) {
+  uint64_t indexOf(String searchString, uint64_t position = 0) {
+    const uint64_t lastIndex = length - searchString.length;
     do {
-      if (buffer[position] == searchString[0]) {
-        bool isEqual = true;
-        for (size_t i = 1; i < searchString.length; i++)
-          if (buffer[position + i] != searchString[i]) {
-            isEqual = false;
-            break;
-          }
-        if (isEqual)
-          return position;
-      }
-      position++;
-    } while (position < length);
+      bool isEqual = true;
+      for (uint64_t i = 0; i < lastIndex; i++)
+        if (buffer_[position + i] != searchString[i]) {
+          isEqual = false;
+          break;
+        }
+      if (isEqual)
+        return position;
+    } while (position++ < length);
     return -1;
   }
-  String slice(size_t start = 0, long long end = -1) {
+  String slice(uint64_t start = 0, long long end = -1) {
     String substr;
     if (end > length)
       end = length;
@@ -102,20 +105,33 @@ public:
         end = 0;
     }
     substr.length_ = end - start;
-    substr.buffer = new char[substr.length];
-    for (size_t i = 0;start < end; start++, i++) {
-      substr.buffer[i] = buffer[start];
+    substr.buffer_ = new char[substr.length];
+    for (uint64_t i = 0;start < end; start++, i++) {
+      substr.buffer_[i] = buffer_[start];
     }
     return substr;
   }
-  const char& operator[] (size_t i) { return buffer[i]; }
+  // Operators
+  const char& operator[] (uint64_t i) { return buffer_[i]; }
+  String operator+(
+    const String& src
+    ) {
+    String str;
+    str.length_ = length + src.length;
+    str.buffer_ = new char[str.length_];
+    for (uint64_t i = 0; i < length; i++)
+      str.buffer_[i] = buffer_[i];
+    for (uint64_t i = 0; i < length; i++)
+      str.buffer_[length + i] = src.buffer_[i];
+    return str;
+  }
   /*
   vector<String> split(String separator) {
     vector<String> parts;
-    size_t current_pos = 0;
+    uint64_t current_pos = 0;
     std::string token;
     while (current_pos < length) {
-      size_t next_pos = this->indexOf(separator);
+      uint64_t next_pos = this->indexOf(separator);
       token = s.substr(0, pos);
       std::cout << token << std::endl;
       s.erase(0, pos + delimiter.length());
