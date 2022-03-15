@@ -28,6 +28,7 @@ class String
   }
 public:
   // refs
+  const char* buffer = buffer_;
   const uint64_t& length = length_;
   // Conversion
   operator const char* () {

@@ -5,54 +5,55 @@
 class Window {
   static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
   {
-    if (message == WM_CREATE)
-    {
-      LPCREATESTRUCT pcs = (LPCREATESTRUCT)lParam;
-      Window* pWindow = (Window*)pcs->lpCreateParams;
-
-      ::SetWindowLongPtrW(
+    if (message == WM_CREATE) {
+      auto pcs = (LPCREATESTRUCT)lParam;
+      Window* window = (Window*)pcs->lpCreateParams;
+      ::SetWindowLongPtrA(
         hWnd,
         GWLP_USERDATA,
-        PtrToUlong(pWindow));
-
+        (LONG_PTR)window
+      );
       return 1;
     }
+    Window* window = reinterpret_cast<Window*>(
+      ::GetWindowLongPtrA(hWnd, GWLP_USERDATA));
 
-    Window* pWindow = reinterpret_cast<Window*>(
-      ::GetWindowLongPtr(hWnd, GWLP_USERDATA));
-
-    if (pWindow)
-    {
-      switch (message)
-      {
+    if (window) {
+      switch (message) {
       case WM_SETFOCUS:
-      {
-        //pWindow->onFocus(true);
-        return 0;
-      }
+        window->hasFocus_ = true;
+        break;
       case WM_KILLFOCUS:
-      {
-        //pWindow->onFocus(false);
-        return 0;
-      }
-      case WM_SIZE:
-      {
-        unsigned short width = LOWORD(lParam);
-        unsigned short height = HIWORD(lParam);
-        //pWindow->onResize(width, height);
-        return 0;
+        window->hasFocus_ = false;
+        break;
+      case WM_SIZE: {
+        window->width_ = LOWORD(lParam);
+        window->height_ = HIWORD(lParam);
+        //window->onResize(width, height);
+        break;
       }
       case WM_DESTROY:
-      {
         PostQuitMessage(0);
         return 1;
-      }
       }
     }
     return DefWindowProc(hWnd, message, wParam, lParam);
   }
+  // Props
   HWND hwnd_;
+  bool hasFocus_ = true;
+  u_short width_ = 800;
+  u_short height_ = 600;
 public:
+  // Refs
+  const u_short& width = width_;
+  const u_short& height = height_;
+  const bool& hasFocus = hasFocus_;
+  // Conversion
+  operator const HWND () {
+    return hwnd_;
+  }
+  // Constructor
   Window(const char* title) {
     WNDCLASSEXA wc = {};
 
@@ -65,7 +66,7 @@ public:
 
     RegisterClassExA(&wc);
 
-    RECT wr = { 0, 0, 800, 600 };
+    RECT wr = { 0, 0, width, height };
     AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
     hwnd_ = CreateWindowExA(
       0,                   // extended window style
@@ -81,28 +82,29 @@ public:
       wc.hInstance,        // handle to application instance
       this                 // pointer to window-creation data
     );
-    ShowWindow(hwnd_, SW_SHOWDEFAULT);
   }
   bool isOpen()
   {
     MSG msg;
-    while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
+    while (PeekMessageA(&msg, 0, 0, 0, PM_REMOVE)) {
       TranslateMessage(&msg);
-      DispatchMessage(&msg);
+      DispatchMessageA(&msg);
       if (msg.message == WM_QUIT)
         return false;
+      //std::cout << std::hex << msg.message << std::endl;
     }
     return true;
   }
-  Window& setTitle() {
-    SetWindowTextA(hwnd_, "Test");
+  Window& setTitle(String newTitle) {
+    SetWindowTextA(hwnd_, newTitle);
     return *this;
   }
   Window& show() {
     ShowWindow(hwnd_, SW_SHOWDEFAULT);
     return *this;
   }
-  void hide() {
+  Window& hide() {
     ShowWindow(hwnd_, SW_HIDE);
+    return *this;
   }
 };
