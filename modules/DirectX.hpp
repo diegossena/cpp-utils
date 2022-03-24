@@ -1,23 +1,12 @@
 // Globals
 #include <vector>
 #include <d3d11.h>
-#include <d3dcompiler.h>
+#include <fstream>
 // Modules
 #include "Window.hpp"
+#include "Error.hpp"
 //
-class PixelShader {
-public:
-  ID3D11PixelShader* ppPixelShader = nullptr;
-  ~PixelShader() {
-    cout << "~PixelShader" << std::endl;
-    ppPixelShader->Release();
-  }
-  // Conversion
-  operator ID3D11PixelShader** () {
-    return &ppPixelShader;
-  }
-};
-class DirectX11 {
+class DirectX {
 private:
   // Props
   float COLOR_CLEAR_VALUE[4] = { .0f, .0f, .0f, .0f };
@@ -28,43 +17,18 @@ private:
   ID3D11RenderTargetView* backbuffer;
 
   ID3D11InputLayout* layout;        // the pointer to the input layout
-  ID3D11VertexShader* vertexShader; // the pointer to the vertex shader
-  ID3D11PixelShader* pixelShader;   // the pointer to the pixel shader
   ID3D11Buffer* vertexBuffer;       // the pointer to the vertex buffer
   ID3D11Buffer* indexBuffer;        // the pointer to the index buffer
   // Create Buffer
   D3D11_BUFFER_DESC bufferDesc = {
-      0,                      // ByteWidth
-      D3D11_USAGE_DYNAMIC,    // USAGE: write access access by CPU and GPU
-      0,                      // BindFlags
-      D3D11_CPU_ACCESS_WRITE, // allow CPU to write in buffer
-      0,                      // MiscFlags
-      0                       //StructureByteStride
+    0,                      // ByteWidth
+    D3D11_USAGE_DYNAMIC,    // USAGE: write access access by CPU and GPU
+    0,                      // BindFlags
+    D3D11_CPU_ACCESS_WRITE, // allow CPU to write in buffer
+    0,                      // MiscFlags
+    0                       //StructureByteStride
   };
   D3D11_SUBRESOURCE_DATA subResourceData;
-
-  // Init
-  void InitPipeline()
-  {
-    // Vortex Shader
-    ID3DBlob* vsBlob;
-    D3DCompileFromFile(L"VertexShader.hlsl", 0, 0, "main", "vs_5_0", 0, 0, &vsBlob, 0);
-    dev->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), 0, &vertexShader);
-    devcon->VSSetShader(vertexShader, 0, 0);
-    // Pixel Shader
-    ID3DBlob* psBlob;
-    D3DCompileFromFile(L"PixelShader.hlsl", 0, 0, "main", "ps_5_0", 0, 0, &psBlob, 0);
-    dev->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), 0, &pixelShader);
-    devcon->PSSetShader(pixelShader, 0, 0);
-    // create the input layout object
-    D3D11_INPUT_ELEMENT_DESC ied[] =
-    {
-        {"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"Color", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0} };
-
-    dev->CreateInputLayout(ied, 2, vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), &layout);
-    devcon->IASetInputLayout(layout);
-  }
   void InitGraphics()
   {
     // select which primtive type we are using
@@ -72,7 +36,39 @@ private:
   }
 
 public:
-  DirectX11(const Window& window) : window_(window)
+  // Subclasses
+  class Shader {
+    ID3D11PixelShader* ppPs = nullptr;
+    ID3D11VertexShader* ppVs = nullptr;
+    ID3D11InputLayout* layout = nullptr;
+  public:
+    ~Shader() {
+      ppPs->Release();
+      ppVs->Release();
+      layout->Release();
+    }
+    // Conversion
+    operator ID3D11PixelShader* () {
+      return ppPs;
+    }
+    operator ID3D11VertexShader* () {
+      return ppVs;
+    }
+    operator ID3D11InputLayout* () {
+      return layout;
+    }
+    operator ID3D11PixelShader** () {
+      return &ppPs;
+    }
+    operator ID3D11VertexShader** () {
+      return &ppVs;
+    }
+    operator ID3D11InputLayout** () {
+      return &layout;
+    }
+  };
+  //
+  DirectX(const Window& window) : window_(window)
   {
     // create a struct to hold information about the swap chain
     DXGI_SWAP_CHAIN_DESC scd;
@@ -92,7 +88,8 @@ public:
     scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; // allow full-screen switching
 
     // create a device, device context and swap chain using the information in the scd struct
-    D3D11CreateDeviceAndSwapChain(0,
+    D3D11CreateDeviceAndSwapChain(
+      0,
       D3D_DRIVER_TYPE_HARDWARE,
       0,
       0,
@@ -103,7 +100,8 @@ public:
       &swapchain,
       &dev,
       0,
-      &devcon);
+      &devcon
+    );
 
     // get the address of the back buffer
     ID3D11Texture2D* pBackBuffer;
@@ -127,10 +125,9 @@ public:
 
     devcon->RSSetViewports(1, &viewport);
 
-    InitPipeline();
     InitGraphics();
   }
-  ~DirectX11()
+  ~DirectX()
   {
     // close and release all existing COM objects
     swapchain->Release();
@@ -138,8 +135,6 @@ public:
     dev->Release();
     devcon->Release();
     layout->Release();
-    vertexShader->Release();
-    pixelShader->Release();
     vertexBuffer->Release();
     indexBuffer->Release();
   }
@@ -157,18 +152,58 @@ public:
     swapchain->Present(0, 0);
   }
   // Statics
-  PixelShader createPixelShader(String data) {
-    PixelShader pixelShader;
-    ID3DBlob* psBlob;
-    D3D10CompileEffectFromMemory(&data.buffer, sizeof(data.buffer), "PixelShader.hlsl", 0, 0, 0, 0, &psBlob, 0);
-    dev->CreatePixelShader(psBlob->GetBufferPointer(), psBlob->GetBufferSize(), 0, &pixelShader.ppPixelShader);
-    cout << pixelShader.ppPixelShader << std::endl;
-    return pixelShader;
+  Shader createShader(String ps_path, String vs_path) {
+    Shader shader;
+    std::ifstream filestream;
+    std::string data;
+    // Open Pixel Shader
+    filestream.open(ps_path);
+    if (!filestream.is_open()) {
+      cerr << "Error on file opening" << std::endl;
+      throw "Error on file opening";
+    }
+    // memory allocation for Pixel Shader
+    filestream.seekg(0, std::ios::end);
+    data.reserve(filestream.tellg());
+    filestream.seekg(0, std::ios::beg);
+    // Load Pixel Shader cso
+    data.assign(
+      (std::istreambuf_iterator<char>(filestream)),
+      std::istreambuf_iterator<char>()
+    );
+    filestream.close();
+    // Create Pixel Shader
+    dev->CreatePixelShader(data.c_str(), data.length(), 0, shader);
+    // Open Vertex Shader
+    filestream.open(vs_path);
+    if (!filestream.is_open()) {
+      cerr << "Error on file opening" << std::endl;
+      throw "Error on file opening";
+    }
+    // memory allocation for Vertex Shader
+    filestream.seekg(0, std::ios::end);
+    data.reserve(filestream.tellg());
+    filestream.seekg(0, std::ios::beg);
+    // Load Vertex Shader cso
+    data.assign(
+      (std::istreambuf_iterator<char>(filestream)),
+      std::istreambuf_iterator<char>()
+    );
+    filestream.close();
+    // Create Vertex Shader
+    dev->CreateVertexShader(data.c_str(), data.length(), 0, shader);
+    // create the input layout object
+    D3D11_INPUT_ELEMENT_DESC ied[] =
+    {
+        {"Position", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+        {"Color", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0} };
+
+    dev->CreateInputLayout(ied, 2, data.c_str(), data.length(), shader);
+    return shader;
   }
-  ID3D11VertexShader* createVertexShader(String data) {
-    ID3D11VertexShader* vertexShader = nullptr;
-    ID3DBlob* psBlob;
-    dev->CreateVertexShader(&data, sizeof(data), 0, &vertexShader);
-    return vertexShader;
+  void useShader(Shader& shader) {
+    devcon->VSSetShader(shader, 0, 0);
+    devcon->PSSetShader(shader, 0, 0);
+    devcon->IASetInputLayout(shader);
   }
 };

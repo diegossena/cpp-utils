@@ -28,7 +28,6 @@ class String
   }
 public:
   // refs
-  const char* buffer = buffer_;
   const uint64_t& length = length_;
   // Conversion
   operator const char* () {
@@ -55,7 +54,7 @@ public:
       buffer_ = new char[length + 1];
       for (uint64_t i = 0; i < length_; i++)
         buffer_[i] = str[i];
-        buffer_[length] = '\0';
+      buffer_[length] = '\0';
     }
   }
   ~String() { delete[] buffer_; }

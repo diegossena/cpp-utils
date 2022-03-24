@@ -49,6 +49,7 @@
         "cstring": "cpp",
         "ctime": "cpp",
         "ratio": "cpp",
-        "queue": "cpp"
+        "queue": "cpp",
+        "fstream": "cpp"
     }
 }

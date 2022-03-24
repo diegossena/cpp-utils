@@ -4,12 +4,13 @@
 #include <map>
 #include <errno.h>
 #include <exception>
-#include <WinSock2.h>
+#include <windows.h>
 using namespace std;
 map<int, string> errorCodes = {
   { ETIMEDOUT, "ETIMEDOUT" },
   { EFAULT, "EFAULT" },
-  { WSAENOTSOCK, "WSAENOTSOCK" }
+  { WSAENOTSOCK, "WSAENOTSOCK" },
+  { }
 };
 /*
 Error(string syscall, int errnum)

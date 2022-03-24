@@ -91,7 +91,6 @@ public:
       DispatchMessageA(&msg);
       if (msg.message == WM_QUIT)
         return false;
-      //std::cout << std::hex << msg.message << std::endl;
     }
     return true;
   }
