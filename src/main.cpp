@@ -1,19 +1,12 @@
-#include "Window.hpp"
-#include "DirectX.hpp"
+#include <iostream>
+#include <vector>
+#include <memory>
+using namespace std;
 #include "String.hpp"
 #include "Date.hpp"
+#include "Array.hpp"
 int main(int argc, char** argv) {
-  auto window = Window("Principal")
-    .setTitle("test")
-    .show();
-  auto directX = DirectX(window);
-  directX.clearColor(1.f);
-  auto shader = directX.createShader("ps_paint.cso", "vs_paint.cso");
-  directX.useShader(shader);
-  while (window.isOpen()) {
-    directX.clear();
-    
-    directX.render();
-  }
-  return 0;
+  String text = "Hello World";
+  cout << text.slice(1) << endl;
+  cout << text.slice(0, -1).length << endl;
 }
