@@ -1,7 +1,7 @@
 #pragma once
+#include <winsock2.h>
 #include <iostream>
 #include <algorithm>
-#include <winsock2.h>
 #include "Error.hpp"
 using namespace std;
 #define MAX_HTTP_BYTES 1001654
@@ -115,11 +115,7 @@ public:
     if (iResult == SOCKET_ERROR)
       Error("send", WSAGetLastError());
   }
-  void close() {
-    closesocket(connectSocket);
-  }
   ~Socket() {
-    cout << "~Socket\n";
-    close();
+    closesocket(connectSocket);
   }
 };

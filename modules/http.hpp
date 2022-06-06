@@ -1,8 +1,8 @@
 #pragma once
 #include <string>
 using namespace std;
-#include "Error.hpp"
 #include "Socket.hpp"
+#include "Error.hpp"
 #include "String.hpp"
 #define DEFAULT_HTTP_PORT 80U
 class Http {
@@ -29,7 +29,6 @@ private:
     // Parse response
     char buffer[BUFSIZ] = "", caracter, * ptr;
     Response response;
-    // Get status.code
     response.status = atoi(socket.read(3).c_str());
     socket.readByte();
     // Get status.text
@@ -54,7 +53,7 @@ private:
         }
         *ptr++ = caracter;
       }
-      string key(String::toLowerCase(buffer));
+      string key = String(buffer).toLowerCase();
       ptr = buffer;
       memset(buffer, '\0', BUFSIZ);
       // get header value
@@ -76,8 +75,7 @@ private:
   }
 public:
   // Methods
-  Response get(string host, string path = "/", u_short port = DEFAULT_HTTP_PORT)
-  {
+  Response get(String host, String path = "/", u_short port = DEFAULT_HTTP_PORT) {
     return request("GET", host, path, port);
   }
 } http;

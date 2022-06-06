@@ -1,6 +1,6 @@
 CLS
 @ECHO OFF
-gcc src/main.cpp -o bin/main -Imodules -Isrc -lstdc++ -lD3D11 -ld3dcompiler
+gcc src/main.cpp -o bin/main -Imodules -Isrc -lstdc++ -lWs2_32 -lD3D11 -ld3dcompiler
 IF %ERRORLEVEL% == 0 (
   cd bin
   main

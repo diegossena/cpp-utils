@@ -1,7 +1,6 @@
 #pragma once
 #include <windows.h>
-
-namespace KeyBoard {
+namespace Keyboard {
   enum Key
   {
     BackSpace = VK_BACK,
