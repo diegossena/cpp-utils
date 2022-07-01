@@ -1,5 +1,7 @@
-#include "http.hpp"
 #include "console.hpp"
+#include "URL.hpp"
+#include "http.hpp"
+
 int main(int argc, char** argv) {
-  console.log(true, "test");
+  http.get("localhost");
 }

@@ -6,18 +6,6 @@ using namespace std;
 class String {
   string _string;
   uint64_t _length = _string.length();
-  // Operators
-  bool operator==(
-    const String& str
-    ) {
-    if (length != str.length)
-      return false;
-    else
-      for (uint64_t i = 0; i < length; i++)
-        if (_string[i] != str._string[i])
-          return false;
-    return true;
-  }
 public:
   // refs
   const size_t& length = _length;
@@ -55,21 +43,22 @@ public:
     }
     return lower_case_str;
   }
-  uint64_t indexOf(String searchString, uint64_t position = 0) {
-    const uint64_t lastIndex = length - searchString.length;
+  int64_t indexOf(String searchString, uint64_t initial_pos = 0, uint64_t last_pos = 0) {
+    if (last_pos == 0)
+      last_pos = length - searchString.length;
     do {
       bool isEqual = true;
-      for (uint64_t i = 0; i < lastIndex; i++)
-        if (_string[position + i] != searchString[i]) {
+      for (uint64_t i = 0; i < searchString.length; i++)
+        if (_string[initial_pos + i] != searchString[i]) {
           isEqual = false;
           break;
         }
       if (isEqual)
-        return position;
-    } while (position++ < length);
+        return initial_pos;
+    } while (++initial_pos < last_pos);
     return -1;
   }
-  String slice(uint64_t start = 0, long long end = 0) {
+  String slice(uint64_t start = 0, int64_t end = 0) {
     if (end == 0)
       end = length;
     else if (end < 0) {
@@ -79,7 +68,29 @@ public:
     }
     return _string.substr(start, end - start);
   }
+  vector<String> split(String separator) {
+    vector<String> parts;
+    uint64_t current_pos = 0;
+    while (current_pos < length) {
+      uint64_t next_pos = this->indexOf(separator, current_pos);
+      string part = _string.substr(current_pos, next_pos);
+      parts.push_back(part);
+      current_pos += part.length() + separator.length;
+    }
+    return parts;
+  }
   // Operators
+  bool operator==(
+    const String& str
+    ) {
+    if (length != str.length)
+      return false;
+    else
+      for (uint64_t i = 0; i < length; i++)
+        if (_string[i] != str._string[i])
+          return false;
+    return true;
+  }
   void operator=(
     const String& str
     ) {
@@ -87,8 +98,8 @@ public:
   }
   char& operator[] (uint64_t i) { return _string[i]; }
   friend bool operator<(
-    const string& _Left, const string& _Right) noexcept {
-    return _Left.compare(_Right) < 0;
+    const String& _Left, const String& _Right) noexcept {
+    return _Left._string.compare(_Right._string) < 0;
   }
   String operator+(
     const String& src

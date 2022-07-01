@@ -1,43 +1,33 @@
 #pragma once
-#include <string>
+#include "String.hpp"
 using namespace std;
 class URL
 {
 public:
-  string protocol;
-  string host;
-  u_short port;
-  string path;
-  URL(string input)
-  {
-    unsigned short index1, index2;
-    index1 = input.find(':');
-    protocol = input.substr(0, index1);
-    input = input.substr(index1 + 3);
-    index1 = input.find('/');
-    index2 = input.find(':');
-    index1 = index1 < index2 ? index1 : index2;
-    host = input.substr(0, index1);
-    if (index1 < input.length())
-    {
-      input = input.substr(index1);
-    }
-    if (input[0] == ':')
-    {
-      port = atoi(input.substr(1, input.find('/')).c_str());
+  unsigned short port = 0;
+  String protocol, host, path = "/";
+  URL(String input) {
+    if (!input.length)
+      return;
+    int64_t uriEnd = input.length - 1;
+    // get query start
+    int64_t queryStart = input.indexOf("?");
+    // protocol
+    int64_t protocolEnd = input.indexOf("://");
+    if (protocolEnd != -1) {
+      protocol = input.slice(0, protocolEnd);
+      protocolEnd += 3;
     }
     else
-    {
-      port = 80u;
-    }
-    index1 = input.find('/');
-    if (index1 < input.length())
-    {
-      path = input.substr(index1);
-    }
-    else
-    {
-      path = '/';
-    }
+      protocolEnd = 0;
+
+    // host
+    int64_t hostStart = protocolEnd;
+    int64_t pathStart = input.indexOf("/", hostStart);
+    auto origin = input.slice(hostStart, pathStart).split(":");
+    host = origin[0];
+    if (origin[1])
+      port = atoi(origin[1]);
+    path = input.slice(pathStart);
   }
 };

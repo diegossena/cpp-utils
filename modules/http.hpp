@@ -1,29 +1,37 @@
 #pragma once
+// Global Headers
 #include <string>
 using namespace std;
+// Local Headers
+#include "Map.hpp"
 #include "Socket.hpp"
 #include "Error.hpp"
 #include "String.hpp"
+#include "URL.hpp"
+// Definitions
 #define DEFAULT_HTTP_PORT 80U
 class Http {
 public:
   struct Response {
-    string data, statusText;
+    String data, statusText;
     u_short status;
   };
-private:
-  Response request(string method, string host, string path = "/", u_short port = DEFAULT_HTTP_PORT, string body = "") {
-    auto socket = Socket(host, port);
-    string httpRequest = method
+  struct RequestConfig {
+    String url, method = "GET", data = "";
+  };
+  // Methods
+  Response request(RequestConfig config) {
+    URL url(config.url);
+    auto socket = Socket(url.host, url.port);
+    String httpRequest = config.method
       + " "
-      + path
+      + url.path
       + " HTTP/1.1\r\nHost: "
-      + host;
-    if (port != 80U)
-    {
-      httpRequest += ":" + to_string(port);
-    }
-    httpRequest += "\r\nConnection: close\r\n\r\n" + body;
+      + url.host;
+    if (url.port != 80)
+      httpRequest += ":" + to_string(url.port);
+    httpRequest += "\r\nConnection: close\r\n\r\n" + config.data;
+    console.log(httpRequest);
     socket.write(httpRequest);
     socket.read(9);
     // Parse response
@@ -33,11 +41,11 @@ private:
     socket.readByte();
     // Get status.text
     while ((buffer[0] = socket.readByte()) != '\r') {
-      response.statusText.push_back(buffer[0]);
+      response.statusText += buffer[0];
     }
     socket.readByte();
     // Get headers
-    map<string, string> headers;
+    Map headers;
     while (true) {
       ptr = buffer;
       *ptr = socket.readByte();
@@ -73,9 +81,9 @@ private:
     response.data = socket.read(contentLength);
     return response;
   }
-public:
-  // Methods
-  Response get(String host, String path = "/", u_short port = DEFAULT_HTTP_PORT) {
-    return request("GET", host, path, port);
+  Response get(String url) {
+    RequestConfig config;
+    config.url = url;
+    return request(config);
   }
 } http;
