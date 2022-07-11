@@ -1,5 +1,6 @@
 #pragma once
 #include <winsock2.h>
+#include <windows.h>
 #include <iostream>
 #include <algorithm>
 #include "Error.hpp"

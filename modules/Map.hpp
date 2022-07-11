@@ -4,11 +4,12 @@
 #include <initializer_list>
 #include <string>
 using namespace std;
+#include "String.hpp"
 // Definition
 class Map {
-  map<string, string> pairs;
+  map<String, String> pairs;
 public:
   Map() {}
-  Map(initializer_list<pair<const string, string>> list) : pairs(list) {}
-  string& operator[] (string key) { return pairs[key]; }
+  Map(initializer_list<pair<const String, String>> list) : pairs(list) {}
+  String& operator[] (String key) { return pairs[key]; }
 };

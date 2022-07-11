@@ -3,8 +3,8 @@
 #include <string>
 using namespace std;
 // Local Headers
-#include "Map.hpp"
 #include "Socket.hpp"
+#include "Map.hpp"
 #include "Error.hpp"
 #include "String.hpp"
 #include "URL.hpp"
@@ -16,22 +16,38 @@ public:
     String data, statusText;
     u_short status;
   };
-  struct RequestConfig {
-    String url, method = "GET", data = "";
+  class RequestConfig {
+  public:
+    URL url = "";
+    String method = "GET", data = "";
+    RequestConfig setURL(URL _url) {
+      url = _url;
+      return *this;
+    }
+    RequestConfig setMethod(String _method) {
+      method = _method;
+      return *this;
+    }
+    RequestConfig setData(String _data) {
+      data = _data;
+      return *this;
+    }
+    static RequestConfig URL(URL _url) {
+      return RequestConfig().setURL(_url);
+    }
   };
   // Methods
   Response request(RequestConfig config) {
-    URL url(config.url);
-    auto socket = Socket(url.host, url.port);
+    if (!config.url.port)
+      config.url.port = 80;
+    auto socket = Socket(config.url.host, config.url.port);
     String httpRequest = config.method
       + " "
-      + url.path
-      + " HTTP/1.1\r\nHost: "
-      + url.host;
-    if (url.port != 80)
-      httpRequest += ":" + to_string(url.port);
-    httpRequest += "\r\nConnection: close\r\n\r\n" + config.data;
-    console.log(httpRequest);
+      + config.url.path
+      + " HTTP/1.1\r\nHost: " + config.url.host
+      + (config.url.port == 80 ? "" : ":" + to_string(config.url.port))
+      + "\r\nConnection: close\r\n\r\n"
+      + config.data;
     socket.write(httpRequest);
     socket.read(9);
     // Parse response
@@ -77,13 +93,12 @@ public:
       memset(buffer, '\0', BUFSIZ);
     }
     socket.readByte();
-    int contentLength = atoi(headers["content-length"].c_str());
+    int contentLength = atoi(headers["content-length"]);
     response.data = socket.read(contentLength);
     return response;
   }
-  Response get(String url) {
-    RequestConfig config;
-    config.url = url;
+  Response get(URL url) {
+    auto config = RequestConfig::URL(url);
     return request(config);
   }
 } http;

@@ -16,6 +16,9 @@ public:
   operator const char* () {
     return _string.c_str();
   }
+  operator const bool() {
+    return !_string.empty();
+  }
   // with no arguments
   String() {}
   // Copy Constructor
@@ -71,12 +74,14 @@ public:
   vector<String> split(String separator) {
     vector<String> parts;
     uint64_t current_pos = 0;
-    while (current_pos < length) {
-      uint64_t next_pos = this->indexOf(separator, current_pos);
+    do {
+      auto next_pos = this->indexOf(separator, current_pos);
+      if (next_pos == -1)
+        next_pos = length;
       string part = _string.substr(current_pos, next_pos);
       parts.push_back(part);
       current_pos += part.length() + separator.length;
-    }
+    } while (current_pos < length);
     return parts;
   }
   // Operators

@@ -1,7 +1,5 @@
 #pragma once
 #include <iostream>
-#include <stdio.h>
-#include <stdarg.h>
 #include <conio.h>
 using namespace std;
 class Console {
@@ -22,17 +20,65 @@ public:
   void log() {
     cout << endl;
   }
-  void log(bool data) {
-    cout << "true" << endl;
+#if 'ç' == 50087
+  void log(const char* data) {
+    const char* ptr = data;
+    while (*ptr != '\0') {
+      switch (*ptr) {
+      case -61:
+        cout << (char)135;
+        break;
+      case -89:
+        break;
+      default:
+        cout << *ptr;
+      }
+      *ptr++;
+    }
+    cout << endl;
   }
-  template <typename T>
-  void log(T data) {
-    cout << data << endl;
+
+  template<typename... Args>
+  void log(const char* data, Args... args) {
+    const char* ptr = data;
+    while (*ptr != '\0') {
+      cout << *ptr++;
+    }
+    cout << " ";
+    log(args...);
+  }
+#else
+  void log(const char* data) {
+    const char* ptr = data;
+    while (*ptr != '\0') {
+      cout << *ptr++;
+    }
+    cout << endl;
+  }
+
+  template<typename... Args>
+  void log(const char* data, Args... args) {
+    const char* ptr = data;
+    while (*ptr != '\0') {
+      cout << *ptr++;
+    }
+    cout << " ";
+    log(args...);
+  }
+#endif
+  // bool
+  void log(bool data) {
+    cout << (data ? "true" : "false") << endl;
   }
   template<typename... Args>
   void log(bool data, Args... args) {
-    cout << "true" << " ";
+    cout << (data ? "true" : "false") << " ";
     log(args...);
+  }
+  // others
+  template <typename T>
+  void log(T data) {
+    cout << data << endl;
   }
   template<typename T, typename... Args>
   void log(T data, Args... args) {
