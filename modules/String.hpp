@@ -2,46 +2,41 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <tchar.h>
 using namespace std;
 class String {
-  string _string = "";
-  uint64_t _length = _string.length();
+  string __string = "";
+  uint64_t __length = __string.length();
 public:
   // refs
-  const size_t& length = _length;
+  const size_t& length = __length;
   // Conversion
   operator const char* () {
-    return _string.c_str();
+    return __string.c_str();
   }
   operator const bool() {
-    return !_string.empty();
+    return !__string.empty();
   }
   // with no arguments
   String() {}
   // Copy Constructor
-  // String(string str) : _string(str) {}
-  // //String(const char* str) : _string(str) {}
-  // String(char str) : _string(1, str) {}
-  // String(int number) : _string(to_string(number)) {}
-  template<typename... Args>
-  String(String str, Args... args) : _string(
-    str._string + String(args...)._string
-  ) { }
-  template<typename... Args>
-  String(int str, Args... args) : _string(
-    to_string(str) + String(args...)._string
-  ) { }
+  // String(string str) : __string(str) {}
+  // String(const char* str) : __string(str) {}
+  // String(char str) : __string(1, str) {}
+  // String(int number) : __string(to__string(number)) {}
   template<typename T, typename... Args>
-  String(T str, Args... args) : _string(
-    string(str) + String(args...)._string
+  String(T str, Args... args) : __string(
+    string(str) + String(args...).__string
+  ) { }
+  template<typename... Args>
+  String(int str, Args... args) : __string(
+    to__string(str) + String(args...).__string
   ) { }
   // Prototype for stream insertion
   friend ostream&
     operator<<(
       ostream& os,
       const String& str) {
-    os << str._string;
+    os << str.__string;
     return os;
   }
   String toLowerCase()
@@ -49,9 +44,9 @@ public:
     String lower_case_str(*this);
     for (uint64_t i = 0; i < lower_case_str.length; i++)
     {
-      if (lower_case_str._string[i] >= 65 && lower_case_str._string[i] <= 90)
+      if (lower_case_str.__string[i] >= 65 && lower_case_str.__string[i] <= 90)
       {
-        lower_case_str._string[i] += 32;
+        lower_case_str.__string[i] += 32;
       }
     }
     return lower_case_str;
@@ -62,7 +57,7 @@ public:
     do {
       bool isEqual = true;
       for (uint64_t i = 0; i < searchString.length; i++)
-        if (_string[initial_pos + i] != searchString[i]) {
+        if (__string[initial_pos + i] != searchString[i]) {
           isEqual = false;
           break;
         }
@@ -79,7 +74,7 @@ public:
       if (end < 0)
         end = 0;
     }
-    return _string.substr(start, end - start);
+    return __string.substr(start, end - start);
   }
   vector<String> split(String separator) {
     vector<String> parts;
@@ -88,7 +83,7 @@ public:
       auto next_pos = this->indexOf(separator, current_pos);
       if (next_pos == -1)
         next_pos = length;
-      string part = _string.substr(current_pos, next_pos);
+      string part = __string.substr(current_pos, next_pos);
       parts.push_back(part);
       current_pos += part.length() + separator.length;
     } while (current_pos < length);
@@ -102,29 +97,29 @@ public:
       return false;
     else
       for (uint64_t i = 0; i < length; i++)
-        if (_string[i] != str._string[i])
+        if (__string[i] != str.__string[i])
           return false;
     return true;
   }
   void operator=(
     const String& str
     ) {
-    _string = str._string;
+    __string = str.__string;
   }
-  char& operator[] (uint64_t i) { return _string[i]; }
+  char& operator[] (uint64_t i) { return __string[i]; }
   friend bool operator<(
     const String& _Left, const String& _Right) noexcept {
-    return _Left._string.compare(_Right._string) < 0;
+    return _Left.__string.compare(_Right.__string) < 0;
   }
   String operator+(
     const string& src
     ) {
-    return _string + src;
+    return __string + src;
   }
   void operator+=(
     const String& src
     ) {
-    _string += src._string;
-    _length = _string.length();
+    __string += src.__string;
+    __length = __string.length();
   }
 };

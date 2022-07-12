@@ -3,6 +3,7 @@
 #include <conio.h>
 #include <windows.h>
 using namespace std;
+#include "Array.hpp"
 /**
  * "ascii"
  * "utf8" = 65501
@@ -49,23 +50,23 @@ public:
     }
   #else
   */
-  void log(const char* data) {
-    const char* ptr = data;
-    while (*ptr != '\0') {
-      cout << *ptr++;
-    }
-    cout << endl;
-  }
+  // void log(const char* data) {
+  //   const char* ptr = data;
+  //   while (*ptr != '\0') {
+  //     cout << *ptr++;
+  //   }
+  //   cout << endl;
+  // }
 
-  template<typename... Args>
-  void log(const char* data, Args... args) {
-    const char* ptr = data;
-    while (*ptr != '\0') {
-      cout << *ptr++;
-    }
-    cout << " ";
-    log(args...);
-  }
+  // template<typename... Args>
+  // void log(const char* data, Args... args) {
+  //   const char* ptr = data;
+  //   while (*ptr != '\0') {
+  //     cout << *ptr++;
+  //   }
+  //   cout << " ";
+  //   log(args...);
+  // }
   //#endif
   // bool
   void log(bool data) {
@@ -78,11 +79,11 @@ public:
   }
   // others
   template <typename T>
-  void log(T data) {
+  void log(T& data) {
     cout << data << endl;
   }
   template<typename T, typename... Args>
-  void log(T data, Args... args) {
+  void log(T& data, Args... args) {
     cout << data << " ";
     log(args...);
   }
