@@ -2,7 +2,6 @@
 // Global Headers
 #include <map>
 #include <initializer_list>
-#include <string>
 using namespace std;
 #include "String.hpp"
 // Definition

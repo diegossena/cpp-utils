@@ -1,18 +1,16 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <string>
 #include <tchar.h>
 using namespace std;
 class String {
-  string _string;
+  string _string = "";
   uint64_t _length = _string.length();
 public:
   // refs
   const size_t& length = _length;
   // Conversion
-  operator std::string() {
-    return _string;
-  }
   operator const char* () {
     return _string.c_str();
   }
@@ -22,10 +20,22 @@ public:
   // with no arguments
   String() {}
   // Copy Constructor
-  String(const string str) : _string(str) {}
-  String(const String& str) : _string(str._string) {}
-  String(char str) : _string(1, str) {}
-  String(const char* str) : _string(str) {}
+  // String(string str) : _string(str) {}
+  // //String(const char* str) : _string(str) {}
+  // String(char str) : _string(1, str) {}
+  // String(int number) : _string(to_string(number)) {}
+  template<typename... Args>
+  String(String str, Args... args) : _string(
+    str._string + String(args...)._string
+  ) { }
+  template<typename... Args>
+  String(int str, Args... args) : _string(
+    to_string(str) + String(args...)._string
+  ) { }
+  template<typename T, typename... Args>
+  String(T str, Args... args) : _string(
+    string(str) + String(args...)._string
+  ) { }
   // Prototype for stream insertion
   friend ostream&
     operator<<(
@@ -107,12 +117,7 @@ public:
     return _Left._string.compare(_Right._string) < 0;
   }
   String operator+(
-    const String& src
-    ) {
-    return _string + src._string;
-  }
-  String operator+(
-    const char* src
+    const string& src
     ) {
     return _string + src;
   }

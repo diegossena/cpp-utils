@@ -1,7 +1,18 @@
 #pragma once
 #include <iostream>
 #include <conio.h>
+#include <windows.h>
 using namespace std;
+/**
+ * "ascii"
+ * "utf8" = 65501
+ * "utf16le"
+ * "ucs2"
+ * "base64"
+ * "latin1" = 850
+ * "binary"
+ * "hex"
+*/
 class Console {
 public:
   void backspace(int spaces) {
@@ -20,34 +31,24 @@ public:
   void log() {
     cout << endl;
   }
-#if 'ç' == 50087
-  void log(const char* data) {
-    const char* ptr = data;
-    while (*ptr != '\0') {
-      switch (*ptr) {
-      case -61:
-        cout << (char)135;
-        break;
-      case -89:
-        break;
-      default:
-        cout << *ptr;
+  /*
+  #if 'ç' == 50087
+    void log(const char* data) {
+      const char* ptr = data;
+      cout << endl;
+    }
+
+    template<typename... Args>
+    void log(const char* data, Args... args) {
+      const char* ptr = data;
+      while (*ptr != '\0') {
+        cout << *ptr++;
       }
-      *ptr++;
+      cout << " ";
+      log(args...);
     }
-    cout << endl;
-  }
-
-  template<typename... Args>
-  void log(const char* data, Args... args) {
-    const char* ptr = data;
-    while (*ptr != '\0') {
-      cout << *ptr++;
-    }
-    cout << " ";
-    log(args...);
-  }
-#else
+  #else
+  */
   void log(const char* data) {
     const char* ptr = data;
     while (*ptr != '\0') {
@@ -65,7 +66,7 @@ public:
     cout << " ";
     log(args...);
   }
-#endif
+  //#endif
   // bool
   void log(bool data) {
     cout << (data ? "true" : "false") << endl;

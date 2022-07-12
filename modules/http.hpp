@@ -8,7 +8,9 @@ using namespace std;
 #include "Error.hpp"
 #include "String.hpp"
 #include "URL.hpp"
+#include "console.hpp"
 // Definitions
+#define CRLF String("\r\n")
 #define DEFAULT_HTTP_PORT 80U
 class Http {
 public:
@@ -20,6 +22,8 @@ public:
   public:
     URL url = "";
     String method = "GET", data = "";
+    RequestConfig(URL _url) : url(_url) {}
+    RequestConfig(URL _url, String _data) : url(_url), data(_data) {}
     RequestConfig setURL(URL _url) {
       url = _url;
       return *this;
@@ -32,22 +36,30 @@ public:
       data = _data;
       return *this;
     }
+
     static RequestConfig URL(URL _url) {
-      return RequestConfig().setURL(_url);
+      return RequestConfig(_url);
+    }
+    static RequestConfig URL_Data(::URL _url, String _data) {
+      return RequestConfig(_url, _data);
     }
   };
   // Methods
   Response request(RequestConfig config) {
     if (!config.url.port)
       config.url.port = 80;
+    console.log("config.url.host", config.url.host);
+    console.log("config.url.port", config.url.port);
     auto socket = Socket(config.url.host, config.url.port);
-    String httpRequest = config.method
-      + " "
-      + config.url.path
-      + " HTTP/1.1\r\nHost: " + config.url.host
-      + (config.url.port == 80 ? "" : ":" + to_string(config.url.port))
-      + "\r\nConnection: close\r\n\r\n"
-      + config.data;
+    auto httpRequest = String(
+      config.method, " ", config.url.path, " HTTP/1.1", CRLF,
+      "Host: ", config.url.host, (config.url.port == 80 ? "" : ":" + config.url.port), CRLF,
+      "Content-Type: text/plain", CRLF,
+      "Content-Length: ", config.data.length, CRLF,
+      "Connection: close", CRLF,
+      CRLF,
+      config.data
+    );
     socket.write(httpRequest);
     socket.read(9);
     // Parse response
@@ -99,6 +111,10 @@ public:
   }
   Response get(URL url) {
     auto config = RequestConfig::URL(url);
+    return request(config);
+  }
+  Response post(URL url, String body) {
+    auto config = RequestConfig::URL_Data(url, body);
     return request(config);
   }
 } http;

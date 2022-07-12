@@ -1,3 +1,4 @@
+$host.UI.RawUI.BackgroundColor = "Black"
 CLS
 @ECHO OFF
 gcc src/main.cpp -o bin/main -Imodules -Isrc -lstdc++ -lWs2_32 -lD3D11 -ld3dcompiler
