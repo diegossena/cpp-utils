@@ -3,8 +3,9 @@
 #include <windows.h>
 #include <iostream>
 #include <algorithm>
-#include "Error.hpp"
 using namespace std;
+#include "String.hpp"
+#include "Error.hpp"
 #define MAX_HTTP_BYTES 1001654
 class WinSock2
 {
@@ -24,7 +25,7 @@ class Socket {
   SOCKET connectSocket = INVALID_SOCKET;
   long int timeout_ms = 0;
 public:
-  Socket(string host, u_short port) {
+  Socket(String host, u_short port) {
     int iResult;
     // Hostname -> IP
     struct in_addr addr;
@@ -80,8 +81,8 @@ public:
     timeout_ms = miliseconds * 1000;
     return *this;
   }
-  string read(int length = 0) {
-    string res;
+  String read(int length = 0) {
+    String res;
     int bytesReceived = 0;
     const int bufferLength = min(length, MAX_HTTP_BYTES);
     char buffer[bufferLength + 1] = "";
@@ -111,7 +112,7 @@ public:
     int iResult = recv(connectSocket, &byte, 1, 0);
     return byte;
   }
-  void write(string data) {
+  void write(String data) {
     int iResult = send(connectSocket, data.c_str(), data.length(), 0);
     if (iResult == SOCKET_ERROR)
       Error("send", WSAGetLastError());

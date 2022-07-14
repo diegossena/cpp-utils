@@ -1,6 +1,5 @@
 #pragma once
-#include <string>
+#define undefined nullptr
 class Object {
 public:
-  virtual const string toString() = 0;
 };
