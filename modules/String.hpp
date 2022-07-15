@@ -2,8 +2,7 @@
 #include <iostream>
 #include <cstdint>
 #include <cstring>
-#include <cmath> 
-using namespace std;
+#include <cmath>
 #include "Object.hpp"
 #include "Iterator.hpp"
 #define STRING_DEBUG false
@@ -121,9 +120,9 @@ public:
 #endif
   }
   char& operator[] (uint64_t i) { return __string[i]; }
-  friend ostream&
+  friend std::ostream&
     operator<<(
-      ostream& os,
+      std::ostream& os,
       const String& str) {
     os << str.__string;
     return os;

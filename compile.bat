@@ -1,7 +1,7 @@
 $host.UI.RawUI.BackgroundColor = "Black"
 CLS
 @ECHO OFF
-gcc src/main.cpp -o bin/main -Imodules -Isrc -lstdc++
+gcc src/main.cpp -o bin/main -Imodules -Isrc -lstdc++ -std=c++20
 IF %ERRORLEVEL% == 0 (
   cd bin
   main
