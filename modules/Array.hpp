@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include <cstdint>
 #include <new>
 #include <initializer_list>
@@ -43,17 +44,27 @@ public:
     __length = new_length;
     return new_length;
   }
-  const char* toString() {
-    String str = '[';
-    for (T& i : *this) {
-      if (&i != __list[0])
-        str += ", ";
-      str += i;
+  //operators
+  friend ostream&
+    operator<<(
+      ostream& os,
+      const Array<T>& arr) {
+    uint64_t i = 0;
+    os << '[';
+    const char* wrapper =
+      typeid(T) == typeid(String)
+      ? "\""
+      : typeid(T) == typeid(char)
+      ? "'"
+      : "";
+    while (i < arr.__length) {
+      if (i)
+        os << ", ";
+      os << wrapper << *arr.__list[i++] << wrapper;
     }
-    str += ']';
-    return str;
+    os << ']';
+    return os;
   }
-  // operators
   using ArrayIterator = PointerIterator<T>;
   ArrayIterator begin() { return ArrayIterator(__list); }
   ArrayIterator end() { return ArrayIterator((T**)(__list + __length)); }
