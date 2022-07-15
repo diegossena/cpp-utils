@@ -3,7 +3,7 @@
 #include "console.hpp"
 using namespace std;
 int main(int argc, char** argv) {
-  Array<char> test = { 'a', 'b', 'c' };
-  console.log(test);
+  cout << "test" << endl;
+  Array<const char*> test = { "a", "b" };
   return 0;
 }

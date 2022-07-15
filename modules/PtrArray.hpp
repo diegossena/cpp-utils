@@ -3,21 +3,11 @@
 #include <cstdint>
 #include <new>
 #include <initializer_list>
-#include <type_traits>
 using namespace std;
 #include "Object.hpp"
 #include "Iterator.hpp"
 #include "String.hpp"
-
-#define ARRAY_DEBUG true
-// #if ARRAY_DEBUG
-//     cout
-//       << "Array(initializer_list<T*> list){"
-//       << "__length=" << __length << "}"
-//       << endl;
-// #endif
-
-template <typename T>
+template <class T>
 class Array : public Object {
   T** __list = undefined;
   uint64_t __length = 0;
@@ -26,30 +16,20 @@ public:
   const uint64_t& length = __length;
   // constructors
   Array() {}
-  Array(uint64_t length) : __list(new T[length]), __length(length) {
+  Array(uint64_t length) : __list(new T* [length]), __length(length) {
     uint64_t i = __length;
     do __list[i] = undefined; while (i--);
   }
-  //
-  template <typename TT = T, typename enable_if<is_pointer<TT>::value>::type* = undefined>
   Array(initializer_list<T> list) : __list(new T* [list.size()]), __length(list.size()) {
     uint64_t i = __length;
     while (i--)
       __list[i] = new T(*(list.begin() + i));
   }
-  template <typename TT = T, typename enable_if<!is_pointer<TT>::value>::type* = undefined>
-  Array(initializer_list<T> list) : __list(new T* [list.size()]), __length(list.size()) {
-    uint64_t i = __length;
-    while (i--)
-      __list[i] = (list.begin() + i);
-  }
-  //
   ~Array() {
     if (__length) {
       uint64_t i = __length;
-      if (is_pointer<T>::value)
-        while (i--)
-          delete __list[i];
+      while (i--)
+        delete __list[i];
       delete[] __list;
     }
   }
@@ -92,4 +72,3 @@ public:
     return *__list[i];
   }
 };
-//template <typename TT = T, typename enable_if<is_pointer<TT>::value>::type* = undefined>
