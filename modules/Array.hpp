@@ -4,11 +4,9 @@
 #include <new>
 #include <initializer_list>
 #include <type_traits>
-
-#include "Object.hpp"
-#include "Iterator.hpp"
-#include "String.hpp"
-
+#include <cstring>
+//#include "String.hpp"
+#define undefined nullptr
 #define ARRAY_DEBUG true
 // #if ARRAY_DEBUG
 //     cout
@@ -17,93 +15,58 @@
 //       << endl;
 // #endif
 template <typename T>
-class Array : public Object {
+class Array {
+  typedef std::remove_pointer<T>::type TT;
+protected:
   T* __list = undefined;
   uint64_t __length = 0;
+  class Iterator {
+    T* __ptr;
+  public:
+    Iterator(T* ptr) : __ptr(ptr) { }
+    T& operator*() const { return *__ptr; }
+    Iterator& operator++() { __ptr++; return *this; }
+    friend bool operator!= (const Iterator& a, const Iterator& b) { return a.__ptr != b.__ptr; };
+  };
 public:
   // refs
   const uint64_t& length = __length;
   // constructors
-  Array() {}
   Array(uint64_t length) : __list(new T[length]), __length(length) {
-    uint64_t i = __length;
-    do __list[i] = undefined; while (i--);
+#if ARRAY_DEBUG
+    std::cout
+      << "Array(uint64_t length){"
+      << "__length=" << __length << "}"
+      << std::endl;
+#endif
   }
-  // Array(std::initializer_list<const T> list) : __list(new T[list.size()]), __length(list.size()) {
-  //   uint64_t i = __length;
-
-  //   while (i--)
-  //     if constexpr (std::is_pointer<T>::value)
-  //       __list[i] = new std::remove_pointer<T>(*(list.begin() + i));
-  //     else
-  //       __list[i] = *(list.begin() + i);
-  // }
-  Array(std::initializer_list<T> list) : __list(new T[list.size()]), __length(list.size()) {
+  Array(std::initializer_list<TT> list) : __list(new T[list.size()]), __length(list.size()) {
+#if ARRAY_DEBUG
+    std::cout
+      << "Array(std::initializer_list<T> list){"
+      << "__length=" << __length << "}"
+      << std::endl;
+#endif
     uint64_t i = __length;
-
-    while (i--)
-      if constexpr (std::is_pointer<T>::value)
-        __list[i] = new std::remove_pointer<T>(*(list.begin() + i));
-      else
+    while (i--) {
+      if constexpr (std::is_pointer<T>::value) {
+        __list[i] = new TT(*(list.begin() + i));
+      }
+      else {
         __list[i] = *(list.begin() + i);
+      }
+    }
   }
-  //
   ~Array() {
-    if (__length) {
-      uint64_t i = __length;
-      if constexpr (is_pointer<T>::value)
-        while (i--)
-          delete __list[i];
-      delete[] __list;
-    }
-  }
-  // methods
-  uint64_t push(T item) {
-    uint64_t new_length = __length + 1;
-    T** new_list = new T * [new_length];
-    memcpy(new_list, __list, sizeof(T**) * __length);
+#if ARRAY_DEBUG
+    std::cout << "~Array" << std::endl;
+#endif
     delete[] __list;
-    new_list[__length] = new T(item);
-    __list = new_list;
-    __length = new_length;
-    return new_length;
   }
-  //operators
-  friend std::ostream&
-    operator<<(
-      ostream& os,
-      const Array<T>& arr) {
-    uint64_t i = 0;
-    os << '[';
-    const char* wrapper =
-      typeid(T) == typeid(String)
-      ? "\""
-      : typeid(T) == typeid(char)
-      ? "'"
-      : "";
-    while (i < arr.__length) {
-      if (i)
-        os << ", ";
-      os << wrapper << *arr.__list[i++] << wrapper;
-    }
-    os << ']';
-    return os;
+  // operators
+  TT& operator[] (uint64_t i) {
+    return *__list[i];
   }
-  T& operator[] (uint64_t i) {
-    if constexpr (is_pointer<T>::value)
-      return *__list[i];
-    else
-      return __list[i];
-  }
-  //
-  using ArrayIterator = PointerIterator<T>;
-  ArrayIterator begin() { return ArrayIterator(__list); }
-  ArrayIterator end() { return ArrayIterator((T**)(__list + __length)); }
+  Iterator begin() { return Iterator((T*)__list); }
+  Iterator end() { return Iterator(__list + __length); }
 };
-// template <typename T>
-// class Array<const T> {
-//   T __list = undefined;
-//   uint64_t __length = 0;
-// public:
-//   Array(T list) : __list(list), __length(0) {}
-// };

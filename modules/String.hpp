@@ -3,13 +3,52 @@
 #include <cstdint>
 #include <cstring>
 #include <cmath>
-#include "Object.hpp"
-#include "Iterator.hpp"
+#include "Array.hpp"
+#define STRING_DEBUG true
+#if STRING_DEBUG
+#endif
+using CharArray = Array<char>;
+class String : public CharArray {
+  uint64_t __length = 0;
+public:
+  // refs
+  const uint64_t& length = __length;
+  operator const char* () { return CharArray::__list; }
+  // constructors
+  template<typename T, typename... Args>
+  String(T str, Args... args) : String(String(str) + String(args...)) {}
+  String(const char* str, uint64_t length) : __length(length), CharArray(length + 1) {
+    uint64_t i = CharArray::__length;
+    while (i--)
+      CharArray::__list[i] = str[i];
+#if STRING_DEBUG
+    std::cout
+      << "String(const char* str,uint64_t length){"
+      << "str='" << str << "';"
+      << "length=" << length
+      << "}"
+      << std::endl;
+#endif
+  }
+  String() : String((const char*)"", (uint64_t)0) {}
+  String(const char* str) : String(str, strlen(str)) {}
+  // operators
+  CharArray::Iterator end() { return CharArray::Iterator(CharArray::__list + __length); }
+};
+
+
+/*
+#pragma once
+#include <iostream>
+#include <cstdint>
+#include <cstring>
+#include <cmath>
+#include "Array.hpp"
 #define STRING_DEBUG false
 #if STRING_DEBUG
 int64_t String_instances = 0;
 #endif
-class String : public Object {
+class String : public Array<char> {
   char* __string;
   uint64_t __length = 0;
 public:
@@ -45,9 +84,9 @@ public:
       << endl;
 #endif
   }
+  String(const char* str) : String(str, strlen(str)) {}
   String() : String((const char*)"", (uint64_t)0) {}
   String(const String& str) : String((const char*)str.__string, str.__length) {}
-  String(const char* str) : String(str, strlen(str)) {}
   String(int num) : __length((ceil(log10(num)) + 1) * sizeof(char)) {
     uint64_t size = __length + 1;
     __string = (char*)malloc(size);
@@ -183,3 +222,4 @@ public:
   StringIterator begin() { return StringIterator(__string); }
   StringIterator end() { return StringIterator(__string + __length); }
 };
+*/
