@@ -5,22 +5,20 @@
 #include <cmath>
 #include "Array.hpp"
 #define STRING_DEBUG true
-#if STRING_DEBUG
-#endif
-using CharArray = Array<char>;
-class String : public CharArray {
+template <typename T>
+class String : public Array<char> {
   uint64_t __length = 0;
 public:
   // refs
   const uint64_t& length = __length;
-  operator const char* () { return CharArray::__list; }
+  operator const char* () { return Array<char>::__list; }
   // constructors
-  template<typename T, typename... Args>
-  String(T str, Args... args) : String(String(str) + String(args...)) {}
-  String(const char* str, uint64_t length) : __length(length), CharArray(length + 1) {
-    uint64_t i = CharArray::__length;
+  // template<typename T, typename... Args>
+  // String(T str, Args... args) : String(String(str) + String(args...)) {}
+  String(const char* str, uint64_t length) : __length(length), Array<char>(length + 1) {
+    uint64_t i = Array<char>::__length;
     while (i--)
-      CharArray::__list[i] = str[i];
+      Array<char>::__list[i] = str[i];
 #if STRING_DEBUG
     std::cout
       << "String(const char* str,uint64_t length){"
@@ -33,7 +31,7 @@ public:
   String() : String((const char*)"", (uint64_t)0) {}
   String(const char* str) : String(str, strlen(str)) {}
   // operators
-  CharArray::Iterator end() { return CharArray::Iterator(CharArray::__list + __length); }
+  Array<char>::Iterator end() { return Array<char>::Iterator(Array<char>::__list + __length); }
 };
 
 

@@ -9,14 +9,14 @@ int main(int argc, char** argv) {
   }
   {
     Array<char*> list = { '1', '2' };
-    for (auto item : list) {
-      std::cout << *item << std::endl;
+    for (char item : list) {
+      std::cout << item << std::endl;
     }
   }
   {
     Array<char**> list = { "11", "22" };
     for (auto item : list) {
-      std::cout << *item << std::endl;
+      std::cout << item << std::endl;
     }
   }
   {

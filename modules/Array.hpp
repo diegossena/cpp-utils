@@ -5,15 +5,9 @@
 #include <initializer_list>
 #include <type_traits>
 #include <cstring>
-//#include "String.hpp"
+//
 #define undefined nullptr
 #define ARRAY_DEBUG true
-// #if ARRAY_DEBUG
-//     cout
-//       << "Array(initializer_list<T*> list){"
-//       << "__length=" << __length << "}"
-//       << endl;
-// #endif
 template <typename T>
 class Array {
   typedef std::remove_pointer<T>::type TT;
@@ -24,13 +18,25 @@ protected:
     T* __ptr;
   public:
     Iterator(T* ptr) : __ptr(ptr) { }
-    T& operator*() const { return *__ptr; }
+    TT& operator*() const {
+      if constexpr (std::is_pointer<T>::value)
+        return **__ptr;
+      else
+        return *__ptr;
+    }
     Iterator& operator++() { __ptr++; return *this; }
     friend bool operator!= (const Iterator& a, const Iterator& b) { return a.__ptr != b.__ptr; };
   };
 public:
   // refs
   const uint64_t& length = __length;
+  // constructors
+  Array(uint64_t length)
+};
+#include "String.hpp"
+template <typename T>
+class Array {
+
   // constructors
   Array(uint64_t length) : __list(new T[length]), __length(length) {
 #if ARRAY_DEBUG
